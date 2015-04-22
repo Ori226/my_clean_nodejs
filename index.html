@@ -6,8 +6,15 @@
     <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
     <script>
         $(document).ready(function(){
-            $("button").click(function(){
+            $("#calc_grade").click(function(){
                 $.ajax({url: "stam_query", success: function(result){
+                    $("#div1").html(result);
+                }});
+            });
+
+
+            $("#res_from_cache").click(function(){
+                $.ajax({url: "get_res_from_cache", success: function(result){
                     $("#div1").html(result);
                 }});
             });
@@ -16,7 +23,10 @@
 </head>
 <body>
 
-<button>Calculate Grade</button>
+<button id="calc_grade">Calculate Grade</button>
+
+
+<button id="res_from_cache">Show results from cache</button>
 
 
 
