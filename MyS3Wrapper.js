@@ -4,7 +4,8 @@
 console.log('your hello world');
 var AWS = require('aws-sdk');
 
-
+async = require('async');
+var cache_manager = require('./cache_manager.js');
 
 var s3bucket = new AWS.S3({ params: {Bucket: 'oribucket'} });
 
@@ -34,35 +35,41 @@ module.exports = {
     list_all_files : function(cb){
 
         var allKeys = [];
-        //function listAllKeys(cb)
+
         {
             s3bucket.listObjects({}, function(err, data){
+
+
+                //var return_value = {};
+
                 allKeys.push(data.Contents);
 
                 if(data.IsTruncated)
                     listAllKeys(data.Contents.slice(-1)[0].Key, cb);
                 else
                 {
-                    for(var i =0; i< data.Contents.length;++i)
+
+                    var asyncTasks = [];
+                    async.each(data.Contents, function(item, callback)
                     {
-                        //console.log(data.Contents[i].Key);
-                        s3bucket.getObject(params = {Key:data.Contents[i].Key}, function(err, data) {
-                            //var x = 0;
-                            //concalculate_grade_from_object(file_deserialized_data)sole.log(data.Body.toString());
+                        console.log(item);
+                        var item_key = item.Key;
+                        s3bucket.getObject(params = {Key:item_key}, function(err, data) {
                             file_deserialized_data = JSON.parse(data.Body);
+                            var average = calculate_grade_from_object(file_deserialized_data);
+                            //console.log(calculate_grade_from_object(file_deserialized_data));
+                            //print file name
 
+                            //console.log(item_key);
+                            //return_value[item_key] = average;
+                            cache_manager.StoreInCache(item_key,average, function(){ callback();});
 
-
-                            console.log(calculate_grade_from_object(file_deserialized_data));
-                            //for(var entry_i = 0; entry_i<   file_deserialized_data["Grades"].length; ++entry_i)
-                            //{
-                            //    console.log(file_deserialized_data["Grades"][entry_i]);
-                            //}
-                            //console.log(JSON.parse(data.Body));
                         });
-                    }
+                    },
+                    function(err){
+                        cache_manager.RetrieveFromCache(cb);
+                    });
                 }
-                cb();
             });
         }
     }

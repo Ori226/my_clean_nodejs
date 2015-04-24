@@ -4,19 +4,22 @@
 
 
 mys3wrapper =  require('./MyS3Wrapper');
-mys3wrapper.list_all_files(function () {
-    console.log('done');
-});
+
+//mys3wrapper.list_all_files(function () {
+//    console.log('done');
+//});
+
+
 var fs = require('fs');
 
-
+var cache_manager = require  ('./cache_manager.js');
 
 
 var multer  = require('multer');
 var express = require('express');
 var AWS = require('aws-sdk');
 
-
+var async = require('async');
 
 
 var app = express()
@@ -28,18 +31,6 @@ var http = require('http'), fs = require('fs');
 
 var s3 = new AWS.S3();
 
-
-
-
-
-app.get('/', function (req, res) {
-    res.send('Hello World!')
-})
-
-
-app.get('/test_cmd1', function (req, res) {
-    res.send('Hello World2!')
-})
 
 
 
@@ -81,20 +72,59 @@ app.get('/index.html', function (req, res) {
 
 
 
-app.get('/stam_query', function (req, res) {
+app.get('/calculate_grades', function (req, res) {
 
-    res.send('Hello World3!')
+    mys3wrapper.list_all_files(function(average_dictionary){
+
+        console.log('-------------');
+        console.log(JSON.stringify(average_dictionary, null, 2));
+        console.log('-------------');
+        res.send(JSON.stringify(average_dictionary, null, 2));
+
+    });
+
+
+
 
 });
 
 
 
-app.post('/upload_file2',function(req,res){
-    if(done==true){
-        console.log(req.files);
-        res.end("File uploaded.");
-    }
+
+app.get('/get_res_from_cache',function(req,res){
+
+    cache_manager.RetrieveFromCache(function(reply){
+        if(reply == null)
+        {
+            res.end('empty');
+        }
+        else
+        {
+            res.end(JSON.stringify(reply,  undefined, 2));
+        }
+    });
+
+
 });
+
+
+
+app.get('/clear_cache',function(req,res){
+
+    cache_manager.ClearCache(function(reply){
+        console.log(reply.toString());
+
+        console.log(JSON.stringify(reply, null, 2));
+        res.end(JSON.stringify(reply,  undefined, 2));
+    });
+
+
+});
+
+
+
+
+
 
 var s32 = new AWS.S3();
 
@@ -118,7 +148,7 @@ app.post('/upload_file3',[ multer({
             });
         },
         rename: function (fieldname, filename) {
-            return filename.replace(/\W+/g, '-').toLowerCase() 
+            return filename.replace(/\W+/g, '-').toLowerCase()
         }
     }
 ), function(req, res){
