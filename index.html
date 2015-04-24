@@ -7,7 +7,7 @@
     <script>
         $(document).ready(function(){
             $("#calc_grade").click(function(){
-                $.ajax({url: "stam_query", success: function(result){
+                $.ajax({url: "calculate_grades", success: function(result){
                     $("#div1").html(result);
                 }});
             });
@@ -15,7 +15,12 @@
 
             $("#res_from_cache").click(function(){
                 $.ajax({url: "get_res_from_cache", success: function(result){
-                    $("#div1").html(result);
+                    $("#json_result").html(result);
+                }});
+            });
+            $("#clear_cache_button").click(function(){
+                $.ajax({url: "clear_cache", success: function(result){
+                    $("#json_result").html(result);
                 }});
             });
         });
@@ -27,6 +32,7 @@
 
 
 <button id="res_from_cache">Show results from cache</button>
+<button id="clear_cache_button">Clear cache</button>
 
 
 
@@ -36,6 +42,7 @@
 
 
 <div id="div1"><h2>Let jQuery AJAX Change This Text</h2></div>
+<pre id="json_result"></pre>
 
 
 ***********
