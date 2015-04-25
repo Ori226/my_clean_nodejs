@@ -2,7 +2,10 @@
  * Created by ori22_000 on 4/22/2015.
  */
 
-var redis = require("redis"), client = redis.createClient(6379, '127.0.0.1', {})
+
+var config = require('./my_config')
+
+var redis = require("redis"), client = redis.createClient(config.redis.port, config.redis.uri, {})
 
 client.on("error", function (err) {
     console.log("Error " + err);
