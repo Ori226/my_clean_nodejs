@@ -5,9 +5,9 @@
 
 var config = {}
 
+
 config.default_region = 'us-east-1';
 config.LB_name = 'MyLb3';
-
 
 config.redis = {};
 //config.redis.uri = '172.31.56.243';

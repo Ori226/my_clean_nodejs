@@ -10,46 +10,29 @@ var ec2_lb_stat = require  ('./ec2_lb_stat.js');;
 var fs = require('fs');
 var multer  = require('multer');
 var express = require('express');
-var AWS = require('aws-sdk');
-var async = require('async');
-//var morgan  = require('morgan');
-
-//app.use(morgan('combined'));
-
-
-
 var app = express();
-//var http = require('http'), fs = require('fs');
-
 
 // start the sever on port 80
 var server = app.listen(80, function () {
 
     var host = server.address().address
     var port = server.address().port
-
     console.log('app listening at http://%s:%s', host, port)
-
 })
 
+//probably there is an easy or more elegant way to do it but it works....
 app.get('/index.html', function (req, res) {
-
     fs.readFile('index.html', function (err, html) {
         if (err) {
             throw err;
         }
-
-
-
         res.writeHeader(200, {"Content-Type": "text/html"});
         res.write(html);
         res.end();
     });
-
 })
 
-
-
+//for easier load balancer debugging
 app.get('/ping.html', function (req, res) {
 
     console.log('received ping');
@@ -59,17 +42,14 @@ app.get('/ping.html', function (req, res) {
 
 })
 
+//calculate_grades and insert into cache
 app.get('/calculate_grades', function (req, res) {
-    mys3wrapper.list_all_files(function(average_dictionary){
-
-        //console.log('-------------');
-        //console.log(JSON.stringify(average_dictionary, null, 2));
-        //console.log('-------------');
+    mys3wrapper.list_all_files_and_calc_grades(function(average_dictionary){
         res.send(JSON.stringify(average_dictionary, null, 2));
-
     });
 });
 
+//Show results from cache button
 app.get('/get_res_from_cache',function(req,res){
 
     cache_manager.RetrieveFromCache(function(reply){
@@ -84,6 +64,7 @@ app.get('/get_res_from_cache',function(req,res){
     });
 });
 
+//Clear cache button
 app.get('/clear_cache',function(req,res){
     cache_manager.ClearCache(function(reply){
         console.log(reply.toString());
@@ -93,8 +74,7 @@ app.get('/clear_cache',function(req,res){
     });
 });
 
-
-
+//Show AWS status button
 app.get('/get_aws_state',function(req,res){
     ec2_lb_stat.GetRunningMachineAndLBData(function(reply){
         console.log(reply.toString());
@@ -104,7 +84,6 @@ app.get('/get_aws_state',function(req,res){
     });
 });
 
-var s3 = new AWS.S3();
 app.post('/upload_file3',[ multer({
         dest: './uploads2/',
         inMemory: true,
