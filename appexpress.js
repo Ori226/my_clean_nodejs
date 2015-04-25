@@ -2,55 +2,35 @@
  * Created by ori22_000 on 4/16/2015.
  */
 
-
-mys3wrapper =  require('./MyS3Wrapper');
-
-//mys3wrapper.list_all_files(function () {
-//    console.log('done');
-//});
-
+var config = require('./my_config')
+var mys3wrapper =  require('./MyS3Wrapper');
+var cache_manager = require  ('./cache_manager.js');
+var ec2_lb_stat = require  ('./ec2_lb_stat.js');;
 
 var fs = require('fs');
-
-var cache_manager = require  ('./cache_manager.js');
-
-
 var multer  = require('multer');
 var express = require('express');
 var AWS = require('aws-sdk');
-
 var async = require('async');
+//var morgan  = require('morgan');
 
-
-var app = express()
-var http = require('http'), fs = require('fs');
-
-
+//app.use(morgan('combined'));
 
 
 
-var s3 = new AWS.S3();
+var app = express();
+//var http = require('http'), fs = require('fs');
 
 
-
-
-
-
+// start the sever on port 80
 var server = app.listen(80, function () {
 
     var host = server.address().address
     var port = server.address().port
 
-    console.log('Example app listening at http://%s:%s', host, port)
+    console.log('app listening at http://%s:%s', host, port)
 
 })
-
-
-
-
-
-
-
 
 app.get('/index.html', function (req, res) {
 
@@ -58,6 +38,9 @@ app.get('/index.html', function (req, res) {
         if (err) {
             throw err;
         }
+
+
+
         res.writeHeader(200, {"Content-Type": "text/html"});
         res.write(html);
         res.end();
@@ -67,13 +50,16 @@ app.get('/index.html', function (req, res) {
 
 
 
+app.get('/ping.html', function (req, res) {
 
+    console.log('received ping');
+    res.writeHeader(200, {"Content-Type": "text/html"});
+    res.write("pong");
+    res.end();
 
-
-
+})
 
 app.get('/calculate_grades', function (req, res) {
-
     mys3wrapper.list_all_files(function(average_dictionary){
 
         console.log('-------------');
@@ -82,14 +68,7 @@ app.get('/calculate_grades', function (req, res) {
         res.send(JSON.stringify(average_dictionary, null, 2));
 
     });
-
-
-
-
 });
-
-
-
 
 app.get('/get_res_from_cache',function(req,res){
 
@@ -103,41 +82,29 @@ app.get('/get_res_from_cache',function(req,res){
             res.end(JSON.stringify(reply,  undefined, 2));
         }
     });
-
-
 });
 
-
-
 app.get('/clear_cache',function(req,res){
-
     cache_manager.ClearCache(function(reply){
         console.log(reply.toString());
 
         console.log(JSON.stringify(reply, null, 2));
         res.end(JSON.stringify(reply,  undefined, 2));
     });
-
-
 });
 
 
 
+app.get('/get_aws_state',function(req,res){
+    ec2_lb_stat.GetRunningMachineAndLBData(function(reply){
+        console.log(reply.toString());
 
+        console.log(JSON.stringify(reply, null, 2));
+        res.end(JSON.stringify(reply,  undefined, 2));
+    });
+});
 
-//----------
-var params = {
-    DryRun: true,
-    MaxResults: 0
-};
-
-
-//-------
-
-
-
-var s32 = new AWS.S3();
-
+var s3 = new AWS.S3();
 app.post('/upload_file3',[ multer({
         dest: './uploads2/',
         inMemory: true,
