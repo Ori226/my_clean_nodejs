@@ -77,6 +77,8 @@ module.exports = {
 
 
 
+
+
 function calculate_grade_from_object(deser_object)
 {
     var grades_average = 0;
