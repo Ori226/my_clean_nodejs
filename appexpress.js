@@ -2,7 +2,7 @@
  * Created by ori22_000 on 4/16/2015.
  */
 
-var config = require('./my_config')
+var config = require('./my_config');
 var mys3wrapper =  require('./MyS3Wrapper');
 var cache_manager = require  ('./cache_manager.js');
 var ec2_lb_stat = require  ('./ec2_lb_stat.js');;
@@ -62,9 +62,9 @@ app.get('/ping.html', function (req, res) {
 app.get('/calculate_grades', function (req, res) {
     mys3wrapper.list_all_files(function(average_dictionary){
 
-        console.log('-------------');
-        console.log(JSON.stringify(average_dictionary, null, 2));
-        console.log('-------------');
+        //console.log('-------------');
+        //console.log(JSON.stringify(average_dictionary, null, 2));
+        //console.log('-------------');
         res.send(JSON.stringify(average_dictionary, null, 2));
 
     });
@@ -109,27 +109,15 @@ app.post('/upload_file3',[ multer({
         dest: './uploads2/',
         inMemory: true,
         onFileUploadData: function (file, data, req, res) {
-            // file : { fieldname, originalname, name, encoding, mimetype, path, extension, size, truncated, buffer }
-            var params = {
-                Bucket: 'oribucket',
-                Key: file.name,
-                Body: data
-            };
-
-            s32.putObject(params, function (perr, pres) {
-                if (perr) {
-                    console.log("Error uploading data: ", perr);
-                } else {
-                    console.log("Successfully uploaded data to myBucket/myKey");
-                }
-            });
+            mys3wrapper.upload_file(file, data, req, res, function(){
+                console.log('done uploading files to s3');
+            })
         },
         rename: function (fieldname, filename) {
             return filename.replace(/\W+/g, '-').toLowerCase()
         }
     }
 ), function(req, res){
-    console.log(req.body) // form fields
-    console.log(req.files) // form files
-    res.status(204).end()
+    res.redirect('/index.html');
+
 }]);

@@ -10,9 +10,11 @@ config.LB_name = 'MyLb3';
 
 
 config.redis = {};
-config.redis.uri = '172.31.56.243';
+//config.redis.uri = '172.31.56.243';
+config.redis.uri = '127.0.0.1';
 config.redis.host = 'hostname';
 config.redis.port = 6379;
+config.bucket_name = 'my_bucket_for_ha1';
 
 
 module.exports = config;

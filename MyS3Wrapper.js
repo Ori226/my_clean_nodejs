@@ -7,7 +7,10 @@ var AWS = require('aws-sdk');
 async = require('async');
 var cache_manager = require('./cache_manager.js');
 
-var s3bucket = new AWS.S3({ params: {Bucket: 'oribucket'} });
+
+
+var config = require('./my_config');
+var s3bucket = new AWS.S3({ params: {Bucket: config.bucket_name} });
 
 
 
@@ -18,19 +21,45 @@ module.exports = {
         console.log('my hello world');
 
     },
-    upload_string: function (stam_string, callback) {
-        s3bucket.createBucket(function() {
-            var params = {Key: 'myKey2', Body: stam_string};
-            s3bucket.upload(params, function(err, data) {
-                if (err) {
-                    console.log("Error uploading data: ", err);
-                } else {
-                    console.log("Successfully uploaded data to myBucket/myKey");
-                }
+    upload_file: function (file, data, req, res, callback) {
 
-                callback();
-            });
+
+        s3bucket.createBucket({Bucket: config.bucket_name}, function() {
+
+
+            //onFileUploadData: function (file, data, req, res)
+            {
+                // file : { fieldname, originalname, name, encoding, mimetype, path, extension, size, truncated, buffer }
+                var params = {
+                    //Bucket: 'oribucket',
+                    Key: file.name,
+                    Body: data
+                };
+
+                s3bucket.putObject(params, function (perr, pres) {
+                    if (perr) {
+                        console.log("Error uploading data: ", perr);
+                    } else {
+                        console.log("Successfully uploaded data to myBucket/myKey");
+                        callback();
+                    }
+                });
+            }
         });
+
+
+        //s3bucket.createBucket(function() {
+        //    var params = {Key: 'myKey2', Body: stam_string};
+        //    s3bucket.upload(params, function(err, data) {
+        //        if (err) {
+        //            console.log("Error uploading data: ", err);
+        //        } else {
+        //            console.log("Successfully uploaded data to myBucket/myKey");
+        //        }
+        //
+        //        callback();
+        //    });
+        //});
     },
     list_all_files : function(cb){
 

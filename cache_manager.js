@@ -11,6 +11,13 @@ client.on("error", function (err) {
     console.log("Error " + err);
 });
 
+
+
+client.on("ready", function () {
+    console.log("redis is ready ");
+});
+
+
 module.exports = {
     StoreInCache: function (key,value,cb) {
         client.hmset('average_grades',key,value, redis.print);
