@@ -8,7 +8,7 @@
         $(document).ready(function(){
             $("#calc_grade").click(function(){
                 $.ajax({url: "calculate_grades", success: function(result){
-                    $("#div1").html(result);
+                    $("json_result").html(result);
                 }});
             });
 
@@ -23,6 +23,13 @@
                     $("#json_result").html(result);
                 }});
             });
+
+
+            $("#get_aws_state_button").click(function(){
+                $.ajax({url: "get_aws_state", success: function(result){
+                    $("#json_result").html(result);
+                }});
+            });
         });
     </script>
 </head>
@@ -33,6 +40,7 @@
 
 <button id="res_from_cache">Show results from cache</button>
 <button id="clear_cache_button">Clear cache</button>
+<button id="get_aws_state_button">Get AWS State</button>
 
 
 
